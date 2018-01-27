@@ -58,8 +58,11 @@ void do_block(int lda, int m_c, int n_r, int k_c, double* packed_A, double* pack
 
       for (int j = 0; j < n_r; ++j){
         for (int p = 0; p < k_c; ++p){
+          int c_pos = calculateOffset(0, j, lda);
+          int b_pos = calculateOffset(p, j, k_c);
+          int a_pos = calculateOffset(0, p, m_c);
           for (int i = 0; i < m_c; ++i){
-            C[calculateOffset(i, j, lda)] += packed_A[calculateOffset(i, p, m_c)] * packed_B[calculateOffset(p, j, k_c)];
+            C[c_pos++] += packed_A[a_pos++] * packed_B[b_pos];
         }
       }
   }
@@ -80,7 +83,7 @@ void GEBP(int lda, int i, int p, double* A, double* B, double* C, double* packed
 }
 
 void GEPP(int lda, int p, double* A, double* B, double* C, double* packed_A, double* packed_B, int k_c){
-  //pack B into packed_B
+  // //pack B into packed_B
   pack(packed_B, B, calculateOffset(p, 0, lda), lda, k_c, lda);
 
   //break each column of A into multiple blocks
