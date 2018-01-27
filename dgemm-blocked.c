@@ -61,7 +61,6 @@ void do_block(int lda, int m_c, int n_r, int k_c, double* packed_A, double* pack
           for (int i = 0; i < m_c; ++i){
             C[calculateOffset(i, j, lda)] += packed_A[calculateOffset(i, p, m_c)] * packed_B[calculateOffset(p, j, k_c)];
         }
-        C[calculateOffset(i, j, lda)] = val;
       }
   }
 }
