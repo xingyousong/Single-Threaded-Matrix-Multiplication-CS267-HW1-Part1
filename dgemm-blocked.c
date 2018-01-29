@@ -48,6 +48,63 @@ void pack(double* dest, double* src, int offset, int width, int height, int lda)
   }
 }
 
+void row_major_pack(double* dest, double* src, int offset, int width, int height, int lda){
+  double* restrict pointer_dest = dest;
+  double* restrict pointer_src = src + offset;
+  int pos = 0;
+  for (int  j = 0; j < height; ++j){
+    for (int i = 0; i < width; ++i){
+      pointer_dest[pos++] = pointer_src[calculateOffset(j, i, lda)];
+    }
+  }
+}
+
+/*
+Each block
+A = m_c * k_c
+B = k_c * n_r
+C = m_c * n_r
+*/
+void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, double* C){
+
+  for (int j = 0; j < n_r; ++j){
+    for (int i = 0; i < m_c; ++i){
+      //int c_val = C[i][j];
+      //c_val += A[i][p] * B[p][j];
+      double c_val = C[calculateOffset(i, j, lda)];
+      int A_pos = i * k_c;
+      int B_pos = calculateOffset(0, j, k_c);
+      for (int p = 0; p < (k_c / 4) * 4; p += 4){
+        c_val += (A[A_pos++] * B[B_pos++]);
+        c_val += (A[A_pos++] * B[B_pos++]);
+        c_val += (A[A_pos++] * B[B_pos++]);
+        c_val += (A[A_pos++] * B[B_pos++]);
+      }
+
+      for (int p = (k_c / 4) * 4; p < k_c; p++){
+        c_val += (A[A_pos++] * B[B_pos++]);
+      }
+
+      C[calculateOffset(i, j, lda)] = c_val;
+    }
+  }
+}
+
+void row_major_GEBP(int lda, int i, int p, double* A, double* B, double* C, double* packed_A, double* packed_B, int k_c, int m_c){
+  //pack A into packed_A
+  row_major_pack(packed_A, A, calculateOffset(i, p, lda), k_c, m_c, lda);
+
+  for (int j = 0; j < lda; j += BLOCK_SIZE){
+    int n_r = min(BLOCK_SIZE, lda - j);
+    //call work horse here
+    do_block_SSE(lda, m_c, n_r, k_c,
+      packed_A,
+      packed_B + calculateOffset(0, j, k_c),
+      C + calculateOffset(i, j, lda));
+  }
+}
+
+
 /*
 Each block
 A = m_c * k_c
@@ -90,7 +147,8 @@ void GEPP(int lda, int p, double* A, double* B, double* C, double* packed_A, dou
   for (int i = 0; i < lda; i += BLOCK_SIZE){
     int m_c = min(BLOCK_SIZE, lda - i);
     //call GEBP here
-    GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
+    //GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
+    row_major_GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
   }
 }
 
