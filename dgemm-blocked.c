@@ -71,9 +71,9 @@ void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, doub
     for (int i = 0; i < m_c; ++i){
       //int c_val = C[i][j];
       //c_val += A[i][p] * B[p][j];
-      double c_val = C[calculateOffset(i, j, lda)];
-      int A_pos = i * k_c;
-      int B_pos = calculateOffset(0, j, k_c);
+      double c_val  __attribute((aligned(64))) = C[calculateOffset(i, j, lda)];
+      int A_pos     __attribute((aligned(64))) = i * k_c;
+      int B_pos     __attribute((aligned(64))) = calculateOffset(0, j, k_c);
       for (int p = 0; p < (k_c / 4) * 4; p += 4){
         c_val += (A[A_pos++] * B[B_pos++]);
         c_val += (A[A_pos++] * B[B_pos++]);
@@ -155,8 +155,8 @@ void GEPP(int lda, int p, double* A, double* B, double* C, double* packed_A, dou
 
 void square_dgemm(int lda, double* A, double* B, double* C){
   //prealocaate memory here
-  double* packed_A = malloc((BLOCK_SIZE * BLOCK_SIZE + 1) * sizeof(double));
-  double* packed_B = malloc((BLOCK_SIZE * lda + 1) * sizeof(double));
+  double* packed_A = (double*) _mm_malloc((BLOCK_SIZE * BLOCK_SIZE + 1) * sizeof(double), 64);
+  double* packed_B = (double*) _mm_malloc((BLOCK_SIZE * lda + 1) * sizeof(double), 64);
 
   //break B into multiple rows of size: k_c * lda
   //break A into multiple cols of size: lda * k_c
@@ -166,6 +166,6 @@ void square_dgemm(int lda, double* A, double* B, double* C){
     GEPP(lda, p, A, B, C, packed_A, packed_B, k_c);
   }
 
-  free(packed_A);
-  free(packed_B);
+  _mm_free(packed_A);
+  _mm_free(packed_B);
 }
