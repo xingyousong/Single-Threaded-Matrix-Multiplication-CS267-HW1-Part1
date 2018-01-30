@@ -77,7 +77,7 @@ void SSE_FOUR(double* A, double* B, double* C, int m_c, int n_r, int k_c, int ld
   }
 }
 
-void super_do_block(int lda, int M, int N, int K, int m_c, int n_r, int k_c, double* A, double* B, double* C){
+void do_block(int lda, int M, int N, int K, int m_c, int n_r, int k_c, double* A, double* B, double* C){
   for (int j = 0; j < N; ++j){
     for (int p = 0; p < K; ++p){
       int c_pos = calculateOffset(0, j, lda);
@@ -103,31 +103,10 @@ void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, doub
          SSE_FOUR(A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda), m_c, n_r, k_c, lda);
          //super_do_block(lda, 4, 4, 4, m_c, n_r, k_c, A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda));
        }else{
-         super_do_block(lda, M, N, K, m_c, n_r, k_c, A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda));
+         do_block(lda, M, N, K, m_c, n_r, k_c, A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda));
         }
       }
     }
-  }
-}
-
-
-/*
-Each block
-A = m_c * k_c
-B = k_c * n_r
-C = m_c * n_r
-*/
-void do_block(int lda, int m_c, int n_r, int k_c, double* packed_A, double* packed_B, double* C){
-
-      for (int j = 0; j < n_r; ++j){
-        for (int p = 0; p < k_c; ++p){
-          int c_pos = calculateOffset(0, j, lda);
-          int b_pos = calculateOffset(p, j, k_c);
-          int a_pos = calculateOffset(0, p, m_c);
-          for (int i = 0; i < m_c; ++i){
-            C[c_pos++] += packed_A[a_pos++] * packed_B[b_pos];
-        }
-      }
   }
 }
 
