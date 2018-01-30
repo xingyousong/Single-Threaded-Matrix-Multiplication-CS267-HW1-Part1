@@ -16,6 +16,7 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <xmmintrin.h>
 
 
 const char* dgemm_desc = "My Simple blocked dgemm.";
@@ -48,16 +49,6 @@ void pack(double* dest, double* src, int offset, int width, int height, int lda)
   }
 }
 
-void row_major_pack(double* dest, double* src, int offset, int width, int height, int lda){
-  double* restrict pointer_dest = dest;
-  double* restrict pointer_src = src + offset;
-  int pos = 0;
-  for (int  j = 0; j < height; ++j){
-    for (int i = 0; i < width; ++i){
-      pointer_dest[pos++] = pointer_src[calculateOffset(j, i, lda)];
-    }
-  }
-}
 
 /*
 Each block
@@ -65,42 +56,57 @@ A = m_c * k_c
 B = k_c * n_r
 C = m_c * n_r
 */
-void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, double* C){
+void SSE_FOUR(double* A, double* B, double* C, int m_c, int n_r, int k_c, int lda){
+  __m128d A_col_1, A_col_2;
+  __m128d B_vec;
+  __m128d C_col_1, C_col_2;
 
-  for (int j = 0; j < n_r; ++j){
-    for (int i = 0; i < m_c; ++i){
-      //int c_val = C[i][j];
-      //c_val += A[i][p] * B[p][j];
-      double c_val  __attribute((aligned(64))) = C[calculateOffset(i, j, lda)];
-      int A_pos     __attribute((aligned(64))) = i * k_c;
-      int B_pos     __attribute((aligned(64))) = calculateOffset(0, j, k_c);
-      for (int p = 0; p < (k_c / 4) * 4; p += 4){
-        c_val += (A[A_pos++] * B[B_pos++]);
-        c_val += (A[A_pos++] * B[B_pos++]);
-        c_val += (A[A_pos++] * B[B_pos++]);
-        c_val += (A[A_pos++] * B[B_pos++]);
+  for (int i = 0; i < 4; ++i){
+    C_col_1 = _mm_loadu_pd(&C[lda * i]);
+    C_col_2 = _mm_loadu_pd(&C[lda * i + 2]);
+    for (int j = 0; j < 4; ++j){
+      A_col_1 = _mm_loadu_pd(&A[m_c *j]);
+      A_col_2 = _mm_loadu_pd(&A[m_c *j+2]);
+      B_vec = _mm_set1_pd(B[j + i * k_c]);
+
+      C_col_1 = _mm_add_pd(_mm_mul_pd(A_col_1, B_vec), C_col_1);
+      C_col_2 = _mm_add_pd(_mm_mul_pd(A_col_2, B_vec), C_col_2);
+    }
+    _mm_storeu_pd(&C[lda * i], C_col_1);
+    _mm_storeu_pd(&C[lda * i + 2], C_col_2);
+  }
+}
+
+void super_do_block(int lda, int M, int N, int K, int m_c, int n_r, int k_c, double* A, double* B, double* C){
+  for (int j = 0; j < N; ++j){
+    for (int p = 0; p < K; ++p){
+      int c_pos = calculateOffset(0, j, lda);
+      int b_pos = calculateOffset(p, j, k_c);
+      int a_pos = calculateOffset(0, p, m_c);
+      for (int i = 0; i < M; ++i){
+        C[c_pos++] += A[a_pos++] * B[b_pos];
       }
-
-      for (int p = (k_c / 4) * 4; p < k_c; p++){
-        c_val += (A[A_pos++] * B[B_pos++]);
-      }
-
-      C[calculateOffset(i, j, lda)] = c_val;
     }
   }
 }
 
-void row_major_GEBP(int lda, int i, int p, double* A, double* B, double* C, double* packed_A, double* packed_B, int k_c, int m_c){
-  //pack A into packed_A
-  row_major_pack(packed_A, A, calculateOffset(i, p, lda), k_c, m_c, lda);
+void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, double* C){
+  /* For each block-row of A */
+  for (int j = 0; j < n_r; j += 4){
+   for (int k = 0; k < k_c; k += 4){
+     for (int i = 0; i < m_c; i += 4){
+       int M = min (4, m_c-i);
+       int N = min (4, n_r-j);
+       int K = min (4, k_c-k);
 
-  for (int j = 0; j < lda; j += BLOCK_SIZE){
-    int n_r = min(BLOCK_SIZE, lda - j);
-    //call work horse here
-    do_block_SSE(lda, m_c, n_r, k_c,
-      packed_A,
-      packed_B + calculateOffset(0, j, k_c),
-      C + calculateOffset(i, j, lda));
+       if (M % 4 == 0 && N % 4 == 0 && K % 4 == 0){
+         SSE_FOUR(A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda), m_c, n_r, k_c, lda);
+         //super_do_block(lda, 4, 4, 4, m_c, n_r, k_c, A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda));
+       }else{
+         super_do_block(lda, M, N, K, m_c, n_r, k_c, A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda));
+        }
+      }
+    }
   }
 }
 
@@ -132,7 +138,7 @@ void GEBP(int lda, int i, int p, double* A, double* B, double* C, double* packed
   for (int j = 0; j < lda; j += BLOCK_SIZE){
     int n_r = min(BLOCK_SIZE, lda - j);
     //call work horse here
-    do_block(lda, m_c, n_r, k_c,
+    do_block_SSE(lda, m_c, n_r, k_c,
       packed_A,
       packed_B + calculateOffset(0, j, k_c),
       C + calculateOffset(i, j, lda));
@@ -147,16 +153,15 @@ void GEPP(int lda, int p, double* A, double* B, double* C, double* packed_A, dou
   for (int i = 0; i < lda; i += BLOCK_SIZE){
     int m_c = min(BLOCK_SIZE, lda - i);
     //call GEBP here
-    //GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
-    row_major_GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
+    GEBP(lda, i, p, A, B, C, packed_A, packed_B, k_c, m_c);
   }
 }
 
 
 void square_dgemm(int lda, double* A, double* B, double* C){
   //prealocaate memory here
-  double* packed_A = (double*) _mm_malloc((BLOCK_SIZE * BLOCK_SIZE + 1) * sizeof(double), 64);
-  double* packed_B = (double*) _mm_malloc((BLOCK_SIZE * lda + 1) * sizeof(double), 64);
+  double* packed_A = malloc((BLOCK_SIZE * BLOCK_SIZE + 1) * sizeof(double));
+  double* packed_B = malloc((BLOCK_SIZE * lda + 1) * sizeof(double));
 
   //break B into multiple rows of size: k_c * lda
   //break A into multiple cols of size: lda * k_c
@@ -166,6 +171,6 @@ void square_dgemm(int lda, double* A, double* B, double* C){
     GEPP(lda, p, A, B, C, packed_A, packed_B, k_c);
   }
 
-  _mm_free(packed_A);
-  _mm_free(packed_B);
+  free(packed_A);
+  free(packed_B);
 }
