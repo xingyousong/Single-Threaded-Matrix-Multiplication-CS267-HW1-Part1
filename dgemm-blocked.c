@@ -22,7 +22,7 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 const char* dgemm_desc = "My Simple blocked dgemm.";
 
 #if !defined(BLOCK_SIZE)
-#define BLOCK_SIZE 61
+#define BLOCK_SIZE 128
 #endif
 
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -79,6 +79,7 @@ void SSE_FOUR(double* A, double* B, double* C, int m_c, int n_r, int k_c, int ld
 
 void do_block(int lda, int M, int N, int K, int m_c, int n_r, int k_c, double* A, double* B, double* C){
   for (int j = 0; j < N; ++j){
+      
     for (int p = 0; p < K; ++p){
       int c_pos = calculateOffset(0, j, lda);
       int b_pos = calculateOffset(p, j, k_c);
@@ -93,11 +94,13 @@ void do_block(int lda, int M, int N, int K, int m_c, int n_r, int k_c, double* A
 void do_block_SSE(int lda, int m_c, int n_r, int k_c, double* A, double* B, double* C){
   /* For each block-row of A */
   for (int j = 0; j < n_r; j += 4){
+   int N = min (4, n_r-j);
    for (int k = 0; k < k_c; k += 4){
+     int K = min (4, k_c-k);
      for (int i = 0; i < m_c; i += 4){
        int M = min (4, m_c-i);
-       int N = min (4, n_r-j);
-       int K = min (4, k_c-k);
+       
+       
 
        if (M % 4 == 0 && N % 4 == 0 && K % 4 == 0){
          SSE_FOUR(A+calculateOffset(i, k, m_c), B+calculateOffset(k, j, k_c), C+calculateOffset(i, j, lda), m_c, n_r, k_c, lda);
