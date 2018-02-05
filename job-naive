@@ -1,0 +1,11 @@
+#!/bin/bash -l
+#SBATCH -C haswell
+#SBATCH -p debug
+#SBATCH -N 1
+#SBATCH -t 00:1:00
+#SBATCH --cpu-freq=2300000
+#SBATCH -J job-naive
+#SBATCH -o job-naive.o%j
+#SBATCH -e job-naive.e%j
+
+srun -N 1 -n 1 ./benchmark-naive
