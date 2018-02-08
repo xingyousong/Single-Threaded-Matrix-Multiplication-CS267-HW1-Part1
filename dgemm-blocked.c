@@ -158,26 +158,74 @@ static void compute_four_by_four(double* A, double* B, double* C, int M, int N, 
     }
   }
 }
-
-
 //naive brutal force
-static void naive(double* A, double* B, double* C, int M, int N, int K, int lda){
+static void two_by_two_and_naive(double* A, double* B, double* C, int M, int N, int K, int lda){
   __assume_aligned(A, 32);
   __assume_aligned(B, 32);
   __assume_aligned(C, 32);
 
-  //Ultimate Leftover, Brute Force 
-  for (int i = (M/4)*4; i < M; ++i){
-      for (int j = 0; j < N; ++j){
-          double C_ij = C[i+j*lda];
-          for (int k = 0; k < K; k++){
-            C_ij += A[weird_offset_no_multiply(i, k, lda, STRIDE)] * B[k+j*lda];
-          }
-          C[i+j*lda] = C_ij;
-      }
-  }
-}
+  __m128d c_col_0, c_col_1, c_col_2, c_col_3;
+  __m128d b_k0, b_k1, b_k2, b_k3;
+  for (int i = (M/4)*4; i <= M-2; i+=2){
+    for (int j = 0; j <= N-4; j += 4){
+      double* Cij = C + i + j*lda;
+      //load cols
+      c_col_0 = _mm_load_pd(Cij);
+      c_col_1 = _mm_load_pd(Cij + lda);
+      c_col_2 = _mm_load_pd(Cij + 2 * lda);
+      c_col_3 = _mm_load_pd(Cij + 3 * lda);
 
+      __m128d a_row_k_first_half;
+      int A_pos = weird_offset_no_multiply(i, 0, lda, STRIDE);
+      for (int k = 0; k < K; ++k){
+        a_row_k_first_half = _mm_load_pd(A + A_pos + k * STRIDE);
+
+        //broadcast might be faster
+        b_k0 = _mm_set1_pd(B[k+j*lda]);
+        b_k1 = _mm_set1_pd(B[k+(j+1)*lda]);
+        b_k2 = _mm_set1_pd(B[k+(j+2)*lda]);
+        b_k3 = _mm_set1_pd(B[k+(j+3)*lda]);
+
+        c_col_0 = _mm_fmadd_pd(a_row_k_first_half, b_k0, c_col_0);
+        c_col_1 = _mm_fmadd_pd(a_row_k_first_half, b_k1, c_col_1);
+        c_col_2 = _mm_fmadd_pd(a_row_k_first_half, b_k2, c_col_2);
+        c_col_3 = _mm_fmadd_pd(a_row_k_first_half, b_k3, c_col_3);
+
+        _mm_store_pd(Cij,         c_col_0);
+        _mm_store_pd(Cij+lda,     c_col_1);
+        _mm_store_pd(Cij+2*lda,   c_col_2);
+        _mm_store_pd(Cij+3*lda,   c_col_3);
+      }
+    }
+    //leftover//
+    for (int j = (N/4)*4; j < N; j++){
+        c_col_0 = _mm_load_pd(C + i + j*lda);
+        __m128d a_row_k_first_half;
+        int A_pos = weird_offset_no_multiply(i,0,lda,STRIDE);
+        for (int k = 0; k < K; k++){
+          a_row_k_first_half  = _mm_load_pd(A + A_pos + k * STRIDE);
+          b_k0                = _mm_set1_pd(B[k+j*lda]);
+          c_col_0             = _mm_fmadd_pd(a_row_k_first_half, b_k0, c_col_0);
+        }
+        _mm_store_pd(C+i+j*lda,      c_col_0);
+      }
+    }
+
+    //Ultimate Leftover, Brute Force
+    for (int i = (M/2)*2; i < M; ++i){
+      for (int j = 0; j < N; j++){
+        c_col_0 = _mm_load_sd(C + i + j*lda);
+        __m128d a_row_k_first_half;
+        int A_pos = weird_offset_no_multiply(i,0,lda,STRIDE);
+        for (int k = 0; k < K; k++){
+          a_row_k_first_half  = _mm_load_sd(A + A_pos + k * STRIDE);
+          b_k0                = _mm_set1_pd(B[k+j*lda]);
+          c_col_0             = _mm_fmadd_sd(a_row_k_first_half, b_k0, c_col_0);
+        }
+        _mm_store_sd(C+i+j*lda,      c_col_0);
+      }
+    }
+}
 
 
 // A   M * K
@@ -187,7 +235,7 @@ static void compute(double* A, double* B, double* C, int M, int N, int K, int ld
   //The following methods can be called in arbitrary sequence.
 
   //first handle edge case using naive
-  naive(A, B, C, M, N, K, lda);
+  two_by_two_and_naive(A, B, C, M, N, K, lda);
   //then handle those cannot be computed using 4 by 8
   compute_four_by_four(A, B, C, M, N, K, lda);
   //lastly handle those can be computed using 4 by 8
