@@ -77,6 +77,8 @@ We also made small code improvements that sometimes improved performance by smal
 \item Preprocessing calculations - Since multiplications are relatively expensive, it makes sense to only precalculate an index $(i +j* stride)$ once, store this value, and use it as often as possible. 
 \end{itemize}
 
+\subsection{Edge Cases}
+We also handled edge cases (e.g. if a block goes over the size of the matrix, handle this case by further partitioning and decomposition). This included writing SSE intrinsics for 4x4 and 2x2 cases when the 8x4 AVX block code is too big. 
 
 \section{(Submitted) dgemm-blocked.c }
 \subsection{Performance}
@@ -91,10 +93,10 @@ Overall, our submission gave an average of $44 \%$ over the normal test cases. N
 Our submission consists of the following functions:
 \begin{itemize}
 \item weird\_transformation - This transforms the input matrix by stretching its columns by STRIDE times, while reducing its rows by STRIDE times (and padding the last row accordingly if there is uneven divisibility).
-\item compute - This performs AVX vectorization to update each 8x4 block of the C-matrix, given input as "smaller blocks", using the FMA intrinsic. 
+\item compute - This performs AVX vectorization to update each 8x4 block of the C-matrix, given input as "smaller blocks", using the FMA intrinsic. It also performs the 4x4 and 2x2 cases as needed. 
 \item do\_block\_large - This cuts an input block into smaller blocks, with each smaller block passed into compute. 
 \item square\_dgemm - This cuts the entire matrix inputs into blocks to be passed into do\_block\_large. 
-\item vectorized\_FMA - This takes in 8x4 matrix from C and performs the correct updates. 
+\item vectorized\_FMA - This takes in 8x4 matrix from C and performs the correct updates. The 2x2 and 4x4 cases are also written to handle edge cases. 
 \end{itemize}
 Note that the ordering of the 3 nested for loops in each of the functions (square\_dgemm, do\_block\_large, compute) are subtly not the same. For notation purposes (i.e. i,j,k representing columns and rows), suppose that computation is always performed using the update rule (where $C[i,j]$ may represent a larger block, smaller block, or individual element): $C[i,j] += A[i, k]*B[k, j]$. Furthermore, we may define, roughly speaking, 'large blocks' data intended to fit in L2 cache, while "small blocks" data intended to fit in L1 cache. The 8x4 AVX vectorization is therefore intended for the CPU registers. 
 
@@ -156,13 +158,10 @@ Thus the pseudocode for the algorithm is presented below (ignoring boundary case
 \begin{algorithmic} 
 
 
-\FOR{$i=0, i<M, i+= 8$ }
-\FOR{$j=0, j<N, j+= 4$}
+\STATE Vectorized\_two\_by\_two ($M,N,K$) (handles corners)
+\STATE Vectorized\_four\_by\_four ($M,N,K$) (handles edges)
+\STATE Vectorized\_FMA($8 \times 4$ $M,N,K$ ) (handles main inner rectangle)
 
-\STATE Vectorized\_FMA($8 \times 4$ $C_{i,j}$)
-
-\ENDFOR
-\ENDFOR
 \end{algorithmic}
 \end{algorithm}
 

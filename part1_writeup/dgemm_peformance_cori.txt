@@ -1,27 +1,192 @@
-Size: 4	Mflop/s:  592.033	Percentage:  1.61
-Size: 31	Mflop/s:  5765.62	Percentage: 15.67
-Size: 32	Mflop/s:  8187.43	Percentage: 22.25
-Size: 96	Mflop/s:    14880	Percentage: 40.43
-Size: 97	Mflop/s:  14058.8	Percentage: 38.20
-Size: 127	Mflop/s:  14513.5	Percentage: 39.44
-Size: 128	Mflop/s:  16425.5	Percentage: 44.63
-Size: 129	Mflop/s:    15114	Percentage: 41.07
-Size: 191	Mflop/s:  16027.3	Percentage: 43.55
-Size: 192	Mflop/s:  17746.6	Percentage: 48.22
-Size: 229	Mflop/s:  17708.7	Percentage: 48.12
-Size: 255	Mflop/s:  17141.6	Percentage: 46.58
-Size: 256	Mflop/s:  18287.5	Percentage: 49.69
-Size: 257	Mflop/s:  17374.5	Percentage: 47.21
-Size: 319	Mflop/s:  17917.6	Percentage: 48.69
-Size: 320	Mflop/s:  19209.6	Percentage: 52.20
-Size: 321	Mflop/s:  18788.4	Percentage: 51.06
-Size: 417	Mflop/s:  19401.8	Percentage: 52.72
-Size: 479	Mflop/s:  19436.2	Percentage: 52.82
-Size: 480	Mflop/s:  20443.8	Percentage: 55.55
-Size: 511	Mflop/s:    17631	Percentage: 47.91
-Size: 512	Mflop/s:  17866.4	Percentage: 48.55
-Size: 639	Mflop/s:  19976.7	Percentage: 54.28
-Size: 640	Mflop/s:  20643.5	Percentage: 56.10
-Size: 767	Mflop/s:  20131.5	Percentage: 54.71
-Size: 768	Mflop/s:  20177.8	Percentage: 54.83
-Size: 769	Mflop/s:  20151.9	Percentage: 54.76
+Size: 31	Mflop/s:  5739.84	Percentage: 15.60
+Size 31 Test Pass 
+Size: 32	Mflop/s:  8045.46	Percentage: 21.86
+Size 32 Test Pass 
+Size: 33	Mflop/s:   6708.2	Percentage: 18.23
+Size 33 Test Pass 
+Size: 63	Mflop/s:  9261.81	Percentage: 25.17
+Size 63 Test Pass 
+Size: 64	Mflop/s:  11683.5	Percentage: 31.75
+Size 64 Test Pass 
+Size: 65	Mflop/s:  10291.6	Percentage: 27.97
+Size 65 Test Pass 
+Size: 95	Mflop/s:  11769.8	Percentage: 31.98
+Size 95 Test Pass 
+Size: 96	Mflop/s:  14162.5	Percentage: 38.49
+Size 96 Test Pass 
+Size: 97	Mflop/s:  12758.8	Percentage: 34.67
+Size 97 Test Pass 
+Size: 127	Mflop/s:  13219.8	Percentage: 35.92
+Size 127 Test Pass 
+Size: 128	Mflop/s:  15556.3	Percentage: 42.27
+Size 128 Test Pass 
+Size: 129	Mflop/s:  13823.9	Percentage: 37.56
+Size 129 Test Pass 
+Size: 159	Mflop/s:  14004.7	Percentage: 38.06
+Size 159 Test Pass 
+Size: 160	Mflop/s:  15983.8	Percentage: 43.43
+Size 160 Test Pass 
+Size: 161	Mflop/s:  14798.1	Percentage: 40.21
+Size 161 Test Pass 
+Size: 191	Mflop/s:  14832.1	Percentage: 40.30
+Size 191 Test Pass 
+Size: 192	Mflop/s:  16701.4	Percentage: 45.38
+Size 192 Test Pass 
+Size: 193	Mflop/s:  15739.8	Percentage: 42.77
+Size 193 Test Pass 
+Size: 223	Mflop/s:  15677.9	Percentage: 42.60
+Size 223 Test Pass 
+Size: 224	Mflop/s:  17492.4	Percentage: 47.53
+Size 224 Test Pass 
+Size: 225	Mflop/s:  16462.6	Percentage: 44.74
+Size 225 Test Pass 
+Size: 255	Mflop/s:  16051.9	Percentage: 43.62
+Size 255 Test Pass 
+Size: 256	Mflop/s:  17362.4	Percentage: 47.18
+Size 256 Test Pass 
+Size: 257	Mflop/s:  16229.4	Percentage: 44.10
+Size 257 Test Pass 
+Size: 287	Mflop/s:  16320.8	Percentage: 44.35
+Size 287 Test Pass 
+Size: 288	Mflop/s:  17773.7	Percentage: 48.30
+Size 288 Test Pass 
+Size: 289	Mflop/s:  16983.9	Percentage: 46.15
+Size 289 Test Pass 
+Size: 319	Mflop/s:  16816.9	Percentage: 45.70
+Size 319 Test Pass 
+Size: 320	Mflop/s:  18146.2	Percentage: 49.31
+Size 320 Test Pass 
+Size: 321	Mflop/s:  17526.6	Percentage: 47.63
+Size 321 Test Pass 
+Size: 351	Mflop/s:  17202.1	Percentage: 46.74
+Size 351 Test Pass 
+Size: 352	Mflop/s:  18538.2	Percentage: 50.38
+Size 352 Test Pass 
+Size: 353	Mflop/s:    17816	Percentage: 48.41
+Size 353 Test Pass 
+Size: 383	Mflop/s:  17501.7	Percentage: 47.56
+Size 383 Test Pass 
+Size: 384	Mflop/s:  18650.4	Percentage: 50.68
+Size 384 Test Pass 
+Size: 385	Mflop/s:  17700.9	Percentage: 48.10
+Size 385 Test Pass 
+Size: 415	Mflop/s:  17563.4	Percentage: 47.73
+Size 415 Test Pass 
+Size: 416	Mflop/s:  17928.5	Percentage: 48.72
+Size 416 Test Pass 
+Size: 417	Mflop/s:  17635.3	Percentage: 47.92
+Size 417 Test Pass 
+Size: 447	Mflop/s:  17543.3	Percentage: 47.67
+Size 447 Test Pass 
+Size: 448	Mflop/s:  18949.8	Percentage: 51.49
+Size 448 Test Pass 
+Size: 449	Mflop/s:  18515.9	Percentage: 50.32
+Size 449 Test Pass 
+Size: 479	Mflop/s:  18276.2	Percentage: 49.66
+Size 479 Test Pass 
+Size: 480	Mflop/s:  19159.3	Percentage: 52.06
+Size 480 Test Pass 
+Size: 481	Mflop/s:  18655.8	Percentage: 50.70
+Size 481 Test Pass 
+Size: 511	Mflop/s:  16750.2	Percentage: 45.52
+Size 511 Test Pass 
+Size: 512	Mflop/s:  17148.9	Percentage: 46.60
+Size 512 Test Pass 
+Size: 513	Mflop/s:  16704.5	Percentage: 45.39
+Size 513 Test Pass 
+Size: 543	Mflop/s:  17137.9	Percentage: 46.57
+Size 543 Test Pass 
+Size: 544	Mflop/s:  17750.4	Percentage: 48.23
+Size 544 Test Pass 
+Size: 545	Mflop/s:  17611.7	Percentage: 47.86
+Size 545 Test Pass 
+Size: 575	Mflop/s:  17652.9	Percentage: 47.97
+Size 575 Test Pass 
+Size: 576	Mflop/s:  18168.3	Percentage: 49.37
+Size 576 Test Pass 
+Size: 577	Mflop/s:  18145.7	Percentage: 49.31
+Size 577 Test Pass 
+Size: 607	Mflop/s:  17837.9	Percentage: 48.47
+Size 607 Test Pass 
+Size: 608	Mflop/s:  18286.6	Percentage: 49.69
+Size 608 Test Pass 
+Size: 609	Mflop/s:  19027.8	Percentage: 51.71
+Size 609 Test Pass 
+Size: 639	Mflop/s:  18740.3	Percentage: 50.92
+Size 639 Test Pass 
+Size: 640	Mflop/s:  19490.3	Percentage: 52.96
+Size 640 Test Pass 
+Size: 641	Mflop/s:  18822.6	Percentage: 51.15
+Size 641 Test Pass 
+Size: 671	Mflop/s:  18600.3	Percentage: 50.54
+Size 671 Test Pass 
+Size: 672	Mflop/s:  19304.7	Percentage: 52.46
+Size 672 Test Pass 
+Size: 673	Mflop/s:  18947.6	Percentage: 51.49
+Size 673 Test Pass 
+Size: 703	Mflop/s:  18794.8	Percentage: 51.07
+Size 703 Test Pass 
+Size: 704	Mflop/s:  19493.9	Percentage: 52.97
+Size 704 Test Pass 
+Size: 705	Mflop/s:  19215.1	Percentage: 52.22
+Size 705 Test Pass 
+Size: 735	Mflop/s:  19045.9	Percentage: 51.76
+Size 735 Test Pass 
+Size: 736	Mflop/s:  19734.2	Percentage: 53.63
+Size 736 Test Pass 
+Size: 737	Mflop/s:  19357.5	Percentage: 52.60
+Size 737 Test Pass 
+Size: 767	Mflop/s:  18790.2	Percentage: 51.06
+Size 767 Test Pass 
+Size: 768	Mflop/s:  19165.8	Percentage: 52.08
+Size 768 Test Pass 
+Size: 769	Mflop/s:  18772.2	Percentage: 51.01
+Size 769 Test Pass 
+Size: 799	Mflop/s:  18946.9	Percentage: 51.49
+Size 799 Test Pass 
+Size: 800	Mflop/s:  19566.7	Percentage: 53.17
+Size 800 Test Pass 
+Size: 801	Mflop/s:  19277.3	Percentage: 52.38
+Size 801 Test Pass 
+Size: 831	Mflop/s:  19101.8	Percentage: 51.91
+Size 831 Test Pass 
+Size: 832	Mflop/s:  19729.8	Percentage: 53.61
+Size 832 Test Pass 
+Size: 833	Mflop/s:  19433.5	Percentage: 52.81
+Size 833 Test Pass 
+Size: 863	Mflop/s:  19283.6	Percentage: 52.40
+Size 863 Test Pass 
+Size: 864	Mflop/s:  19884.2	Percentage: 54.03
+Size 864 Test Pass 
+Size: 865	Mflop/s:  19564.5	Percentage: 53.16
+Size 865 Test Pass 
+Size: 895	Mflop/s:  19239.4	Percentage: 52.28
+Size 895 Test Pass 
+Size: 896	Mflop/s:  19857.5	Percentage: 53.96
+Size 896 Test Pass 
+Size: 897	Mflop/s:  19318.3	Percentage: 52.50
+Size 897 Test Pass 
+Size: 927	Mflop/s:  19149.9	Percentage: 52.04
+Size 927 Test Pass 
+Size: 928	Mflop/s:  19685.2	Percentage: 53.49
+Size 928 Test Pass 
+Size: 929	Mflop/s:  19399.6	Percentage: 52.72
+Size 929 Test Pass 
+Size: 959	Mflop/s:  19259.5	Percentage: 52.34
+Size 959 Test Pass 
+Size: 960	Mflop/s:  19792.5	Percentage: 53.78
+Size 960 Test Pass 
+Size: 961	Mflop/s:  19476.8	Percentage: 52.93
+Size 961 Test Pass 
+Size: 991	Mflop/s:  18768.7	Percentage: 51.00
+Size 991 Test Pass 
+Size: 992	Mflop/s:  19671.3	Percentage: 53.45
+Size 992 Test Pass 
+Size: 993	Mflop/s:  19394.9	Percentage: 52.70
+Size 993 Test Pass 
+Size: 1023	Mflop/s:  15848.1	Percentage: 43.07
+Size 1023 Test Pass 
+Size: 1024	Mflop/s:  17021.8	Percentage: 46.25
+Size 1024 Test Pass 
+Size: 1025	Mflop/s:  16495.5	Percentage: 44.82
+Size 1025 Test Pass
