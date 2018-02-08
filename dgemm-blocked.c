@@ -47,16 +47,16 @@ static void compute_four_by_eight(double* A, double* B, double* C, int M, int N,
 
   for (int i = 0; i <= M - STRIDE; i += STRIDE){
     for (int j = 0; j <= N - 4; j += 4){
-        double* Cij = C + i + j*lda;
+        double* C_ij = C + i + j*lda;
         //load cols
-        c_col_0 = _mm256_load_pd(Cij);
-        c_col_1 = _mm256_load_pd(Cij + lda);
-        c_col_2 = _mm256_load_pd(Cij + 2*lda);
-        c_col_3 = _mm256_load_pd(Cij + 3*lda);
-        c_col_4 = _mm256_load_pd(Cij + 4);
-        c_col_5 = _mm256_load_pd(Cij + lda + 4);
-        c_col_6 = _mm256_load_pd(Cij + 2*lda + 4);
-        c_col_7 = _mm256_load_pd(Cij + 3*lda + 4);
+        c_col_0 = _mm256_load_pd(C_ij);
+        c_col_1 = _mm256_load_pd(C_ij + lda);
+        c_col_2 = _mm256_load_pd(C_ij + 2*lda);
+        c_col_3 = _mm256_load_pd(C_ij + 3*lda);
+        c_col_4 = _mm256_load_pd(C_ij + 4);
+        c_col_5 = _mm256_load_pd(C_ij + lda + 4);
+        c_col_6 = _mm256_load_pd(C_ij + 2*lda + 4);
+        c_col_7 = _mm256_load_pd(C_ij + 3*lda + 4);
      
         __m256d a_row_k_first_half;
         __m256d a_row_k_second_half;
@@ -81,14 +81,14 @@ static void compute_four_by_eight(double* A, double* B, double* C, int M, int N,
 
 
         }
-        _mm256_store_pd(Cij,         c_col_0);
-        _mm256_store_pd(Cij+lda,     c_col_1);
-        _mm256_store_pd(Cij+2*lda,   c_col_2);
-        _mm256_store_pd(Cij+3*lda,   c_col_3);
-        _mm256_store_pd(Cij+4,       c_col_4);
-        _mm256_store_pd(Cij+lda+4,   c_col_5);
-        _mm256_store_pd(Cij+2*lda+4, c_col_6);
-        _mm256_store_pd(Cij+3*lda+4, c_col_7);
+        _mm256_store_pd(C_ij,         c_col_0);
+        _mm256_store_pd(C_ij+lda,     c_col_1);
+        _mm256_store_pd(C_ij+2*lda,   c_col_2);
+        _mm256_store_pd(C_ij+3*lda,   c_col_3);
+        _mm256_store_pd(C_ij+4,       c_col_4);
+        _mm256_store_pd(C_ij+lda+4,   c_col_5);
+        _mm256_store_pd(C_ij+2*lda+4, c_col_6);
+        _mm256_store_pd(C_ij+3*lda+4, c_col_7);
     }
 
     //leftover//
@@ -117,12 +117,12 @@ static void compute_four_by_four(double* A, double* B, double* C, int M, int N, 
 
   for (int i = (M/STRIDE)*STRIDE; i <= M - 4; i += 4){
     for (int j = 0; j <= N - 4; j += 4){
-        double* Cij = C + i + j*lda;
+        double* C_ij = C + i + j*lda;
         //load cols
-        c_col_0 = _mm256_load_pd(Cij);
-        c_col_1 = _mm256_load_pd(Cij + lda);
-        c_col_2 = _mm256_load_pd(Cij + 2*lda);
-        c_col_3 = _mm256_load_pd(Cij + 3*lda);
+        c_col_0 = _mm256_load_pd(C_ij);
+        c_col_1 = _mm256_load_pd(C_ij + lda);
+        c_col_2 = _mm256_load_pd(C_ij + 2*lda);
+        c_col_3 = _mm256_load_pd(C_ij + 3*lda);
 
         __m256d a_row_k_first_half;
         for (int k = 0; k < K; ++k){
@@ -139,10 +139,10 @@ static void compute_four_by_four(double* A, double* B, double* C, int M, int N, 
           c_col_2 = _mm256_fmadd_pd(a_row_k_first_half, b_k2, c_col_2);
           c_col_3 = _mm256_fmadd_pd(a_row_k_first_half, b_k3, c_col_3);
         }
-        _mm256_store_pd(Cij,         c_col_0);
-        _mm256_store_pd(Cij+lda,     c_col_1);
-        _mm256_store_pd(Cij+2*lda,   c_col_2);
-        _mm256_store_pd(Cij+3*lda,   c_col_3);
+        _mm256_store_pd(C_ij,         c_col_0);
+        _mm256_store_pd(C_ij+lda,     c_col_1);
+        _mm256_store_pd(C_ij+2*lda,   c_col_2);
+        _mm256_store_pd(C_ij+3*lda,   c_col_3);
     }
 
     //leftover//
@@ -168,12 +168,12 @@ static void two_by_two_and_naive(double* A, double* B, double* C, int M, int N, 
   __m128d b_k0, b_k1, b_k2, b_k3;
   for (int i = (M/4)*4; i <= M-2; i+=2){
     for (int j = 0; j <= N-4; j += 4){
-      double* Cij = C + i + j*lda;
+      double* C_ij = C + i + j*lda;
       //load cols
-      c_col_0 = _mm_load_pd(Cij);
-      c_col_1 = _mm_load_pd(Cij + lda);
-      c_col_2 = _mm_load_pd(Cij + 2 * lda);
-      c_col_3 = _mm_load_pd(Cij + 3 * lda);
+      c_col_0 = _mm_load_pd(C_ij);
+      c_col_1 = _mm_load_pd(C_ij + lda);
+      c_col_2 = _mm_load_pd(C_ij + 2 * lda);
+      c_col_3 = _mm_load_pd(C_ij + 3 * lda);
 
       __m128d a_row_k_first_half;
       int A_pos = weird_offset_no_multiply(i, 0, lda, STRIDE);
@@ -191,10 +191,10 @@ static void two_by_two_and_naive(double* A, double* B, double* C, int M, int N, 
         c_col_2 = _mm_fmadd_pd(a_row_k_first_half, b_k2, c_col_2);
         c_col_3 = _mm_fmadd_pd(a_row_k_first_half, b_k3, c_col_3);
 
-        _mm_store_pd(Cij,         c_col_0);
-        _mm_store_pd(Cij+lda,     c_col_1);
-        _mm_store_pd(Cij+2*lda,   c_col_2);
-        _mm_store_pd(Cij+3*lda,   c_col_3);
+        _mm_store_pd(C_ij,         c_col_0);
+        _mm_store_pd(C_ij+lda,     c_col_1);
+        _mm_store_pd(C_ij+2*lda,   c_col_2);
+        _mm_store_pd(C_ij+3*lda,   c_col_3);
       }
     }
     //leftover//
