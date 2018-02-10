@@ -94,23 +94,23 @@ Our submission consists of the following functions:
 \begin{itemize}
 \item weird\_transformation - This transforms the input matrix by stretching its columns by STRIDE times, while reducing its rows by STRIDE times (and padding the last row accordingly if there is uneven divisibility).
 \item compute - This performs AVX vectorization to update each 8x4 block of the C-matrix, given input as "smaller blocks", using the FMA intrinsic. It also performs the 4x4 and 2x2 cases as needed. 
-\item do\_block\_large - This cuts an input block into smaller blocks, with each smaller block passed into compute. 
-\item square\_dgemm - This cuts the entire matrix inputs into blocks to be passed into do\_block\_large. 
+\item divide\_into\_small\_blocks - This cuts an input block into smaller blocks, with each smaller block passed into compute. 
+\item divide\_into\_large\_blocks - This cuts the entire matrix inputs into blocks to be passed into divide\_into\_large\_blocks. 
 \item vectorized\_FMA - This takes in 8x4 matrix from C and performs the correct updates. The 2x2 and 4x4 cases are also written to handle edge cases. 
 \end{itemize}
 Note that the ordering of the 3 nested for loops in each of the functions (square\_dgemm, do\_block\_large, compute) are subtly not the same. For notation purposes (i.e. i,j,k representing columns and rows), suppose that computation is always performed using the update rule (where $C[i,j]$ may represent a larger block, smaller block, or individual element): $C[i,j] += A[i, k]*B[k, j]$. Furthermore, we may define, roughly speaking, 'large blocks' data intended to fit in L2 cache, while "small blocks" data intended to fit in L1 cache. The 8x4 AVX vectorization is therefore intended for the CPU registers. 
 
 Then we have the following orderings: 
 \begin{itemize}
-\item square\_dgemm is in i-j-k ordering. The reason for this is to fill in a large block of $C$ in one pass as the data is in L2, to prevent too many DRAM passes if we kept making passes over larger blocks in intervals.  
-\item do\_block\_large is in k-j-i ordering. Because A has been made row major early on, this allows cache lines to also follow the order of the blocking movement of A. 
+\item divide\_into\_large\_blocks is in i-j-k ordering. The reason for this is to fill in a large block of $C$ in one pass as the data is in L2, to prevent too many DRAM passes if we kept making passes over larger blocks in intervals.  
+\item divide\_into\_small\_blocks is in k-j-i ordering. Because A has been made row major early on, this allows cache lines to also follow the order of the blocking movement of A. 
 \item compute is in i-j-k ordering. This is also explained by the fact that i must be before j for AVX memory loads from the C matrix, with k moving consecutively. 
 \end{itemize}
 
 Thus the pseudocode for the algorithm is presented below (ignoring boundary cases, small tweaks, etc.) 
 
 \begin{algorithm}
-\caption{SQUARE-DGEMM(lda, A,B,C)}
+\caption{divide\_into\_large\_blocks(lda, A,B,C)}
 \begin{algorithmic} 
 \STATE $A_{weird} \leftarrow weird\_transformation(A)$
 
@@ -124,7 +124,7 @@ Thus the pseudocode for the algorithm is presented below (ignoring boundary case
 
 
 
-\STATE do\_block\_large(block(i,j,k) )
+\STATE divide\_into\_small\_blocks(block(i,j,k) )
 
 \ENDFOR
 \ENDFOR
@@ -133,7 +133,7 @@ Thus the pseudocode for the algorithm is presented below (ignoring boundary case
 \end{algorithm}
 
 \begin{algorithm}
-\caption{do\_block\_large(M, N, K)}
+\caption{divide\_into\_small\_blocks(M, N, K)}
 \begin{algorithmic} 
 \STATE $A_{weird} \leftarrow weird\_transformation(A)$
 
